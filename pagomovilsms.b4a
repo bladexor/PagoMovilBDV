@@ -1,0 +1,286 @@
+﻿Build1=Default,b4a.PagoMovilBDV
+File1=addpagofrecuente.bal
+File2=confirmarpago.bal
+File3=home.bal
+File4=pagosfrecuentes.bal
+FileGroup1=Default Group
+FileGroup2=Default Group
+FileGroup3=Default Group
+FileGroup4=Default Group
+Group=Default Group
+Library1=core
+Library2=phone
+Library3=tts
+Library4=dialogs
+Library5=slidingmenuwrapper
+Library6=randomaccessfile
+Library7=reflection
+ManifestCode='This code will be applied to the manifest file during compilation.~\n~'You do not need to modify it in most cases.~\n~'See this link for for more information: https://www.b4x.com/forum/showthread.php?p=78136~\n~AddManifestText(~\n~<uses-sdk android:minSdkVersion="8" android:targetSdkVersion="26"/>~\n~<supports-screens android:largeScreens="true" ~\n~    android:normalScreens="true" ~\n~    android:smallScreens="true" ~\n~    android:anyDensity="true"/>)~\n~SetApplicationAttribute(android:icon, "@drawable/icon")~\n~SetApplicationAttribute(android:label, "$LABEL$")~\n~CreateResourceFromFile(Macro, Themes.lightTheme)~\n~'End of default text.~\n~
+Module1=PagosFrecuentes
+Module2=Starter
+NumberOfFiles=4
+NumberOfLibraries=7
+NumberOfModules=2
+Version=9.801
+@EndOfDesignText@
+#Region  Project Attributes 
+	#ApplicationLabel: PagoMovil SMS
+	#VersionCode: 2
+	#VersionName: 
+	'SupportedOrientations possible values: unspecified, landscape or portrait.
+	#SupportedOrientations: unspecified
+	#CanInstallToExternalStorage: False
+#End Region
+
+#Region  Activity Attributes 
+	#FullScreen: False
+	#IncludeTitle: True
+#End Region
+
+Sub Process_Globals
+	'These global variables will be declared once when the application starts.
+	Public TTS As TTS
+	
+	Public Bancos As List
+	Public contactoAux As contacto_frecuente
+End Sub
+
+Sub Globals
+	'These global variables will be redeclared each time the activity is created.
+	'These variables can only be accessed from this module.
+
+	Private btnSendSMS As Button
+			
+	Private spBanco As Spinner
+	Private spCelular As Spinner
+	Private txtCelular As EditText
+	Private spCedula As Spinner
+	Private txtCedula As EditText
+	Private txtMonto As EditText
+	
+	'Objetos de la View Confirmar Pago
+	Private lblBanco As Label
+	Private lblCelular As Label
+	Private lblCedula As Label
+	Private lblMonto As Label
+	Private btnConfirmPago As Button
+	
+	'Dim sm As SlidingMenu
+End Sub
+
+Sub Activity_Create(FirstTime As Boolean)
+	'Do not forget to load the layout file created with the visual designer. For example:
+	
+	StartService(Starter)
+	Activity.LoadLayout("home")
+	TTS.Initialize("tts")
+	
+	If FirstTime Then
+		contactoAux.Initialize
+		Bancos.Initialize()
+	
+		Bancos.Add(CreateMap("--SELECCIONAR--":"0000"))
+		Bancos.Add(CreateMap("Banco de Venezuela":"0102"))
+		Bancos.Add(CreateMap("Banco Venezolano de Crédito":"0104"))
+		Bancos.Add(CreateMap("Banco Mercantil":"0105"))
+		Bancos.Add(CreateMap("Banco Provincial":"0108"))
+		Bancos.Add(CreateMap("Bancaribe":"0114"))
+		Bancos.Add(CreateMap("Banco Exterior":"0115"))
+		Bancos.Add(CreateMap("Banco Occidental de Descuento":"0116"))
+		Bancos.Add(CreateMap("Banco Caroní":"0128"))
+		Bancos.Add(CreateMap("Banesco":"0134"))
+		Bancos.Add(CreateMap("Banco Sofitasa":"0137"))
+		Bancos.Add(CreateMap("Banco Plaza":"0138"))
+		Bancos.Add(CreateMap("Bangente":"0146"))
+		Bancos.Add(CreateMap("Banco Fondo Común":"0151"))
+		Bancos.Add(CreateMap("100% Banco":"0156"))
+		Bancos.Add(CreateMap("Banco del Sur":"0157"))
+		Bancos.Add(CreateMap("Banco del Tesoro":"0163"))
+		Bancos.Add(CreateMap("Banco Agrícola de Venezuela":"0166"))
+		Bancos.Add(CreateMap("Bancrecer":"0168"))
+		Bancos.Add(CreateMap("Mi Banco":"0169"))
+		Bancos.Add(CreateMap("Banco Activo":"0171"))
+		Bancos.Add(CreateMap("Bancamiga":"0172"))
+		Bancos.Add(CreateMap("Banco Internacional de Desarrollo":"0173"))
+		Bancos.Add(CreateMap("Banplus":"0174"))
+		Bancos.Add(CreateMap("Banco Bicentenario":"0175"))
+		Bancos.Add(CreateMap("Banco de la Fuerza Armada Nacional Bolivariana":"0177"))
+		Bancos.Add(CreateMap("Citibank":"0190"))
+		Bancos.Add(CreateMap("Banco Nacional de Crédito":"0191"))
+		Bancos.Add(CreateMap("Instituto Municipal de Crédito Popular":"0601"))
+		Bancos.Add(CreateMap("ITALCAMBIO Casa de Cambio":"0719"))
+	End If
+	
+	spBanco.DropdownBackgroundColor=Colors.White
+
+	For Each b As Map In Bancos
+		spBanco.Add(b.GetKeyAt(0))
+	Next
+	
+	spCelular.DropdownBackgroundColor=Colors.White
+	spCelular.AddAll(Array As String("PREFIJO","0412","0414","0416","0424","0426"))
+	
+	spCedula.DropdownBackgroundColor=Colors.White
+	spCedula.Add("V")
+	
+'	If sm.IsInitialized = False Then
+'		sm.Initialize("sm")
+'		sm.Menu.LoadLayout("confirmarpago")
+'		
+'		sm.BehindOffset = 0%x
+'		sm.Menu.Enabled=False
+'		'sm.Mode = sm.RIGHT
+'		
+'	End If
+
+End Sub
+
+Sub TTS_Ready (Success As Boolean)
+	'If Success Then TTS.Speak("Hola Mundo", False)
+End Sub
+
+Sub Activity_Resume
+'	If contactoSelected.IsInitialized=False Then
+	txtCedula.Text=contactoAux.numcedula
+	txtCelular.Text=contactoAux.numcelular
+	spBanco.SelectedIndex=spBanco.IndexOf(contactoAux.banco)
+	spCelular.SelectedIndex=spCelular.IndexOf(contactoAux.prefijo)
+	txtMonto.Text=contactoAux.monto
+'	End If
+End Sub
+
+Sub Activity_Pause (UserClosed As Boolean)
+	
+	'If UserClosed Then
+		contactoAux.banco=spBanco.SelectedItem
+		contactoAux.numcedula=txtCedula.Text
+		contactoAux.numcelular=txtCelular.Text
+		contactoAux.prefijo=spCelular.SelectedItem
+		contactoAux.monto=txtMonto.Text
+	'End If
+End Sub
+
+
+Sub btnSendSMS_Click
+	Dim sms1 As PhoneSms
+	Dim smsText As String
+	
+	If spBanco.SelectedIndex=0 Then
+		ShowMensaje("Seleccione banco receptor")
+	Else if spCelular.SelectedIndex=0 Then
+		ShowMensaje("Seleccione prefijo del celular")
+	else If txtCelular.Text.Length <>7 Then
+		ShowMensaje("Numero Celular invalido")
+	else If txtCedula.Text.Length <>8 Then
+		ShowMensaje("Numero de Cedula invalido")
+	else If txtMonto.Text.Length=0 Then
+		ShowMensaje("Monto invalido")
+	Else
+		
+		Dim p As Panel
+		Dim d1 As CustomDialog
+	
+		p.Initialize("")
+		p.LoadLayout("confirmarpago")
+	
+		d1.AddView(p,10,0,100%x,70%y)
+		
+		lblBanco.Text=spBanco.SelectedItem.ToUpperCase
+		lblCelular.Text=spCelular.SelectedItem & "-" & txtCelular.Text
+		lblCedula.Text=spCedula.SelectedItem & "-" & txtCedula.Text
+		lblMonto.Text=MyFormat(txtMonto.Text)
+	 
+'				Dim r As Reflector
+'				'lblBanco.Text = "http://www.elmundo.es"
+'				r.Target = r.CreateObject("android.text.util.Linkify")
+'				Dim argumento(2) As Object
+'				Dim tipo(2) As String
+'				argumento(0) = lblCelular
+'				tipo(0) = "android.widget.TextView"
+'				argumento(1) = 4
+'				tipo(1) = "java.lang.int"
+'				r.RunMethod4("addLinks", argumento, tipo)
+	 
+		Log(File.DirDefaultExternal)
+		
+		Dim result As Int
+	
+		result=d1.Show("Confirmar Pago" ,"ENVIAR","Cancelar","",Null)
+		
+		If result=DialogResponse.POSITIVE Then
+			
+			Dim codigoBanco As String
+			Dim banco As Map
+					
+			banco=Bancos.Get(spBanco.SelectedIndex)
+			codigoBanco=banco.Get(spBanco.SelectedItem)
+				
+			smsText="Pagar " & codigoBanco & " " & spCelular.SelectedItem & txtCelular.Text & " " & txtCedula.Text & " " &  txtMonto.Text & ",00"
+						
+			ToastMessageShow("Enviando SMS: " & CRLF &  smsText,True)
+			sms1.Send("2661",smsText)
+				
+			ProgressDialogShow2("Enviando SMS: " & CRLF &  smsText,True)
+			
+			
+		End If
+
+	End If
+
+
+	
+End Sub	
+
+
+Sub txtTelefono_TextChanged (Old As String, New As String)
+	If New.Length=11 Then 
+		btnSendSMS.Enabled=True
+	Else
+		btnSendSMS.Enabled=False
+	End If
+End Sub
+
+Sub MyFormat(d As Double) As String
+	Dim s As String = NumberFormat2(d, 0, 0, 0, True)
+	Return s.Replace(",", ".") & ",00"
+End Sub
+
+Public Sub ShowMensaje(Mensaje As String)
+	Msgbox(Mensaje,"Informacion")
+End Sub
+
+Sub spBanco_ItemClick (Position As Int, Value As Object)
+
+End Sub
+
+Sub spCedula_ItemClick (Position As Int, Value As Object)
+	
+End Sub
+
+Sub spCelular_ItemClick (Position As Int, Value As Object)
+'	If Position>0 Then
+'		txtCelular.Enabled=True
+'	Else
+'		txtCelular.Enabled=False
+'	End If
+End Sub
+
+Sub txtCelular_TextChanged (Old As String, New As String)
+'	If New.Length=7 Then
+'		btnSendSMS.Enabled=True
+'	Else
+'		btnSendSMS.Enabled=False
+'	End If
+End Sub
+
+Sub btnPagoFrecuente_Click
+	StartActivity(PagosFrecuentes)
+End Sub
+
+Sub btnConfirmPago_Click
+	'Log("Confirmar")
+	
+	Log (Activity.NumberOfViews)
+
+'	sm.InitializeSlidingWindow("")
+End Sub
